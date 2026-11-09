@@ -33,10 +33,11 @@
 
 int compare_int_asc(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    int x = *(const int *)a;
+    
+    int y = *(const int *)b;
+
+    return (x > y) - (x < y);
 }
 
 /*
@@ -49,10 +50,7 @@ int compare_int_asc(const void *a, const void *b)
 
 int compare_int_desc(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    return compare_int_asc(b, a);
 }
 
 /*
@@ -66,10 +64,10 @@ int compare_int_desc(const void *a, const void *b)
 
 int compare_float_asc(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    float x = *(const float *)a;
+    float y = *(const float *)b;
+
+    return (x > y) - (x < y);
 }
 
 /*
@@ -80,10 +78,7 @@ int compare_float_asc(const void *a, const void *b)
 
 int compare_float_desc(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    return compare_float_asc(b, a);
 }
 
 /*
@@ -97,10 +92,7 @@ int compare_float_desc(const void *a, const void *b)
 
 int compare_str_asc(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    return strcmp((const char *)a, (const char *)b);
 }
 
 /*
@@ -111,10 +103,7 @@ int compare_str_asc(const void *a, const void *b)
 
 int compare_str_desc(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    return compare_str_asc(b, a);
 }
 
 /*
@@ -131,10 +120,10 @@ int compare_str_desc(const void *a, const void *b)
 
 int compare_strptr_asc(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    const char *x = *(const char * const *)a;
+    const char *y = *(const char * const *)b;
+
+    return strcmp(x, y);
 }
 
 /*
@@ -145,10 +134,7 @@ int compare_strptr_asc(const void *a, const void *b)
 
 int compare_strptr_desc(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    return compare_strptr_asc(b, a);
 }
 
 /* ======================================================================
@@ -167,10 +153,18 @@ int compare_strptr_desc(const void *a, const void *b)
 
 void swap_elements(void *a, void *b, size_t size)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    (void)size;
+    if (a == NULL || b == NULL || a == b || size == 0)
+        return;
+
+    unsigned char *x = (unsigned char *)a;
+    unsigned char *y = (unsigned char *)b;
+
+    for (size_t i = 0; i < size; i++)
+    {
+        unsigned char temp = x[i];
+        x[i] = y[i];
+        y[i] = temp;
+    }
 }
 
 /*
@@ -194,11 +188,30 @@ void swap_elements(void *a, void *b, size_t size)
 
 void bubble_sort(void *base, size_t count, size_t size, Comparator compare)
 {
-    // TODO
-    (void)base;
-    (void)count;
-    (void)size;
-    (void)compare;
+    if (base == NULL || compare == NULL || size == 0 || count < 2)
+        return;
+
+    unsigned char *data = (unsigned char *)base;
+
+    for (size_t pass = 0; pass < count - 1; pass++)
+    {
+        bool swapped = false;
+
+        for (size_t i = 0; i < count - 1 - pass; i++)
+        {
+            unsigned char *left = data + i * size;
+            unsigned char *right = left + size;
+
+            if (compare(left, right) > 0)
+            {
+                swap_elements(left, right, size);
+                swapped = true;
+            }
+        }
+
+        if (!swapped)
+            break;
+    }
 }
 
 /*
@@ -213,12 +226,33 @@ void bubble_sort(void *base, size_t count, size_t size, Comparator compare)
 
 bool is_sorted_array(const void *base, size_t count, size_t size, Comparator compare)
 {
-    // TODO
-    (void)base;
-    (void)count;
-    (void)size;
-    (void)compare;
-    return false;
+    if (compare == NULL || size == 0)
+
+        return false;
+
+    if (count < 2)
+
+        return true;
+
+    if (base == NULL)
+
+        return false;
+
+    const unsigned char *data = (const unsigned char *)base;
+
+    for (size_t i = 0; i < count - 1; i++)
+    {
+        const unsigned char *left = data + i * size;
+
+        const unsigned char *right = left + size;
+
+        if (compare(left, right) > 0)
+
+            return false;
+
+    }
+
+    return true;
 }
 
 /* ======================================================================
@@ -241,10 +275,11 @@ bool is_sorted_array(const void *base, size_t count, size_t size, Comparator com
 
 void sort_ints(int *arr, size_t count, bool ascending)
 {
-    // TODO
-    (void)arr;
-    (void)count;
-    (void)ascending;
+    if (arr == NULL || count < 2)
+        return;
+
+        qsort(arr, count, sizeof(int), ascending ? compare_int_asc : compare_int_desc);
+
 }
 
 /*
@@ -255,10 +290,7 @@ void sort_ints(int *arr, size_t count, bool ascending)
 
 void sort_floats(float *arr, size_t count, bool ascending)
 {
-    // TODO
-    (void)arr;
-    (void)count;
-    (void)ascending;
+    
 }
 
 /*
@@ -272,10 +304,7 @@ void sort_floats(float *arr, size_t count, bool ascending)
 
 void sort_names(char names[][NAME_LEN], size_t count, bool ascending)
 {
-    // TODO
-    (void)names;
-    (void)count;
-    (void)ascending;
+   
 }
 
 /*
