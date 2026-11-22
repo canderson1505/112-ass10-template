@@ -290,7 +290,15 @@ void sort_ints(int *arr, size_t count, bool ascending)
 
 void sort_floats(float *arr, size_t count, bool ascending)
 {
+    if (arr == NULL || count < 2)
+
+    {
+        return;
+    }
+
+    Comparator compare = ascending ? compare_float_asc : compare_float_desc;
     
+    qsort(arr, count, sizeof(float), compare); 
 }
 
 /*
@@ -304,7 +312,17 @@ void sort_floats(float *arr, size_t count, bool ascending)
 
 void sort_names(char names[][NAME_LEN], size_t count, bool ascending)
 {
-   
+   if (names == NULL || count < 2)
+
+    {
+
+        return;
+
+    }
+    Comparator compare = ascending ? compare_str_asc : compare_str_desc;
+
+
+    qsort(names, count, NAME_LEN, compare); 
 }
 
 /*
@@ -318,10 +336,13 @@ void sort_names(char names[][NAME_LEN], size_t count, bool ascending)
 
 void sort_string_pointers(char **strs, size_t count, bool ascending)
 {
-    // TODO
-    (void)strs;
-    (void)count;
-    (void)ascending;
+    if (strs == NULL || count < 2)
+
+        return;
+
+    qsort(strs, count, sizeof(char *),
+
+          ascending ? compare_strptr_asc : compare_strptr_desc);
 }
 
 /*
@@ -336,10 +357,22 @@ void sort_string_pointers(char **strs, size_t count, bool ascending)
 
 int *sorted_copy(const int *arr, size_t count)
 {
-    // TODO
-    (void)arr;
-    (void)count;
-    return NULL;
+   if (arr == NULL || count == 0 || count > (size_t)-1 / sizeof(int))
+
+        return NULL;
+
+    int *copy = malloc(count * sizeof(int));
+
+    if (copy == NULL)
+
+        return NULL;
+
+    memcpy(copy, arr, count * sizeof(int));
+
+    qsort(copy, count, sizeof(int), compare_int_asc);
+
+    return copy;
+ 
 }
 
 /*
@@ -356,11 +389,36 @@ int *sorted_copy(const int *arr, size_t count)
 
 bool find_median(const int *arr, size_t count, float *out)
 {
-    // TODO
-    (void)arr;
-    (void)count;
-    (void)out;
-    return false;
+     if (arr == NULL || count == 0 || out == NULL)
+
+        return false;
+
+    int *sorted = sorted_copy(arr, count);
+
+    if (sorted == NULL)
+
+        return false;
+
+    float median;
+
+    if (count % 2 == 1)
+
+    {
+        median = (float)sorted[count / 2];
+    }
+    else
+    {
+        median = ((float)sorted[count / 2 - 1] +
+
+                  (float)sorted[count / 2]) / 2.0f;
+    }
+
+    free(sorted);
+
+    *out = median;
+
+    return true;
+    
 }
 
 /*
@@ -372,12 +430,37 @@ bool find_median(const int *arr, size_t count, float *out)
  *  - arr == NULL or count < 2 -> false (also false if the allocation fails).
  */
 
+   
 bool has_duplicates(const int *arr, size_t count)
 {
-    // TODO
-    (void)arr;
-    (void)count;
-    return false;
+   if (arr == NULL || count < 2)
+
+        return false;
+
+    int *sorted = sorted_copy(arr, count);
+
+    if (sorted == NULL)
+
+        return false;
+
+    bool found = false;
+
+    for (size_t i = 0; i < count - 1; i++)
+
+    {
+        if (sorted[i] == sorted[i + 1])
+        {
+            found = true;
+
+            break;
+        }
+    }
+
+    free(sorted);
+
+
+    return found;
+
 }
 
 /*
@@ -389,10 +472,13 @@ bool has_duplicates(const int *arr, size_t count)
 
 int compare_students_by_age(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    const Student *student_a = (const Student *)a;
+
+    const Student *student_b = (const Student *)b;
+
+    return (student_a->age > student_b->age) -
+
+           (student_a->age < student_b->age);
 }
 
 /*
@@ -407,10 +493,19 @@ int compare_students_by_age(const void *a, const void *b)
 
 int compare_students_ranking(const void *a, const void *b)
 {
-    // TODO
-    (void)a;
-    (void)b;
-    return 0;
+    const Student *student_a = (const Student *)a;
+
+    const Student *student_b = (const Student *)b;
+
+    if (student_a->score > student_b->score)
+
+        return -1;
+
+    if (student_a->score < student_b->score)
+
+        return 1;
+
+    return strcmp(student_a->name, student_b->name);
 }
 
 /*
@@ -423,7 +518,8 @@ int compare_students_ranking(const void *a, const void *b)
 
 void rank_students(Student *students, size_t count)
 {
-    // TODO
-    (void)students;
-    (void)count;
+    if (students == NULL || count < 2)
+        return;
+
+    qsort(students, count, sizeof(Student), compare_students_ranking);
 }
